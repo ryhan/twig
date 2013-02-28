@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+  <title>Twig</title>
+  <link rel="stylesheet" type="text/css" href="css/default.css">
+  <link rel="stylesheet" type="text/css" href="css/twig.css">
+</head>
+<body>
+
+  <script src="js/jquery.js"></script>
+  <script src="js/underscore.js"></script>
+  <script src="js/twitter.js"></script>
+
+  <script>
+    function getTweets(name){
+      user = new TwitterUser(name);
+      user.get_friends(function(){ user.get_conversations( printConversations );});
+    }
+
+    function printConversations(tweets){
+      console.log(_.keys(user.friends));
+      for(var i=0; i< tweets.length; i++){
+        tweet = tweets[i];
+        console.log("@" + tweet.from_user + ": " + tweet.text);
+      }
+    }
+
+    $(function() {
+      getTweets("srir");
+    });
+
+  </script>
+
+</body>
+</html>
