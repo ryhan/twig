@@ -67,7 +67,11 @@ class @TwitterUser
     $.getJSON(api + params, (data) => cb(@_handleRelated(data, context)))
 
   _handleRelated: (d, context) ->
+    console.log({result: d.results})
     important = [ ]
+
+    if not d.results?
+      return important
 
     knows = (name) ->
       unless (name?)
@@ -82,9 +86,10 @@ class @TwitterUser
       return (name != context.username)
 
     for tweet in d.results
-      if not_me(tweet.from_user) and (tweet.to_user?)
-        if knows(tweet.from_user) #or knows(tweet.to_user)
-          important.push(tweet)
+      if tweet.iso_language_code == "en" # and tweet.in_reply_to_status_id?
+        if not_me(tweet.from_user) and (tweet.to_user?)
+          if knows(tweet.from_user) #or knows(tweet.to_user)
+            important.push(tweet)
 
     return important
 

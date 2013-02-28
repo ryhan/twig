@@ -91,7 +91,13 @@ Identifies a user's top friends.
 
     TwitterUser.prototype._handleRelated = function(d, context) {
       var important, knows, not_me, tweet, _i, _len, _ref;
+      console.log({
+        result: d.results
+      });
       important = [];
+      if (!(d.results != null)) {
+        return important;
+      }
       knows = function(name) {
         if (!(name != null)) {
           return false;
@@ -109,9 +115,11 @@ Identifies a user's top friends.
       _ref = d.results;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         tweet = _ref[_i];
-        if (not_me(tweet.from_user) && (tweet.to_user != null)) {
-          if (knows(tweet.from_user)) {
-            important.push(tweet);
+        if (tweet.iso_language_code === "en") {
+          if (not_me(tweet.from_user) && (tweet.to_user != null)) {
+            if (knows(tweet.from_user)) {
+              important.push(tweet);
+            }
           }
         }
       }

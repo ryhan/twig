@@ -4,12 +4,15 @@ body{
   font-weight: 200;
   font-weight: normal;
   line-height: 26px;
+  line-height: 18px;
 }
 
 html,
 body,
 div,
 span,
+a,
+p,
 nav,
 header,
 aside,

@@ -6,27 +6,93 @@
   <link rel="stylesheet" type="text/css" href="css/twig.css">
 </head>
 <body>
+  <div id="tweets">
+  </div>
 
   <script src="js/jquery.js"></script>
+  <script src="js/jquery.oembed.min.js"></script>
   <script src="js/underscore.js"></script>
   <script src="js/twitter.js"></script>
+  <script async src="js/widgets.js" charset="utf-8"></script>
 
   <script>
+    var handles_seen = { };
+    var deep = 0;
+    var noprint = { }
+    var printcount = 0;
+
     function getTweets(name){
-      user = new TwitterUser(name);
-      user.get_friends(function(){ user.get_conversations( printConversations );});
+      console.log("trying..." + name);
+      noprint[name.toLowerCase()] = true;
+      console.log(noprint);
+      console.log("-----------------------------------------");
+
+      if (name == undefined){
+        return;
+      }
+      if (handles_seen[name]!= undefined && handles_seen[name]!=null){
+        return;
+      }
+      else{
+        handles_seen[name] = true;
+        user = new TwitterUser(name);
+        user.get_friends(function(){ user.get_conversations( printConversations );});
+      }
+      
     }
 
-    function printConversations(tweets){
-      console.log(_.keys(user.friends));
-      for(var i=0; i< tweets.length; i++){
-        tweet = tweets[i];
-        console.log("@" + tweet.from_user + ": " + tweet.text);
+    var getdTweets = _.debounce(getTweets, 1000);
+
+    function printTweet(tweet){
+      if (printcount > 7){
+        return;
       }
+      if (noprint[tweet.from_user.toLowerCase()] == true){
+        return;
+      }
+      noprint[tweet.from_user.toLowerCase()] = true;
+      printcount++;
+      tweet.text = tweet.text.replace('@' + tweet.to_user,'');
+
+      var quote = '<a class="tweetGroup" target="_blank" href="https://twitter.com/' + 
+                  tweet.from_user + '/status/' + tweet.id_str + '"><blockquote class="twitter-tweet"> '+ 
+                  '<img src="' + tweet.profile_image_url + '"/>' + 
+                    '<span class="handle main">' + tweet.from_user_name + '</span> ' +
+                    '<span class="handle grey">@' + tweet.from_user + '</span>' + 
+                  '<p><span class="handle normal">@' + tweet.to_user + '</span> ' + tweet.text + 
+                  '</p>' + '</blockquote></a> ';
+
+      $('#tweets').append(quote);
+
+      console.log("@" + tweet.from_user + ": " + tweet.text); 
+
+    }
+
+
+    function printConversations(tweets){
+      
+      keys = _.keys(user.friends);
+      console.log(keys);
+      if ((tweets.length < 2 || printcount < 7) && (deep == 0)){
+        deep = 1;
+        var n = keys.length;
+        if (n> 5){ n = 5; }
+        for (var j = 0; j < n ; j++){
+          console.log("queuing..." + keys[j]);
+          var a = setTimeout("getTweets('" + keys[j] + "')", 1000*j);
+          /*getdTweets(keys[j]);*/
+        }
+      }
+
+      for(var i=0; i< tweets.length; i++){
+        printTweet(tweets[i]);
+      }
+      $('a.tweetGroup').click(function(e){$(this).toggleClass('read');});
+    
     }
 
     $(function() {
-      getTweets("srir");
+      getTweets("ryhanhassan");
     });
 
   </script>
